@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <title>Page Title</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   
+   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+<script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+<script src="http://cdn.jsdelivr.net/timepicker.js/latest/timepicker.min.js"></script>
+<link href="http://cdn.jsdelivr.net/timepicker.js/latest/timepicker.min.css" rel="stylesheet"/>
+
+</head>
+<body>
+<style>
+h1 { font-size: 40px;
+    margin:20px;
+    float: up;
+}
+table {
+    margin: 20px 5px 20px 20px;
+} 
+.container {
+    border: 1px solid rgb(122, 120, 120, .5);
+    padding: 15px;
+}
+.jumbotron {
+    margin: 20px 20px 20px 20px;
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+    background-color: rgb(84, 107, 235);
+    color: white;
+}
+
+
+
+</style>
+
+<div class="jumbotron">
+               <h1>Any Time is Train Time</h1>
+               <h2>Let's Go!</h2> 
+</div>
+<div class="container">
+   <div class="row">
+   <table class = "table table-striped">
+       <thead id='table-head'><h1>Current Train Schedule</h1>
+           <tr class ="bro">
+               <th scope="col">Train Name</th>
+               <th scope="col">Destination</th>
+               <th scope="col">Frequency (min)</th>
+               <th scope="col">Next Arrival</th>
+               <th scope="col">Minutes Away</th>
+           </tr>
+           
+   </thead>
+   </table>
+   </div>
+</div>
+<br>
+<br>
+<div class="form container">
+       <form>
+           <h1>Add Train</h1>
+           <br>
+           <div class="form-group">
+               <label for="name">Train Name</label>
+               <input type="text" class="form-control" id="name"  placeholder="Enter your name">
+               </div>
+           <div class="form-group">
+               <label for="destination">Destination</label>
+               <input type="text" class="form-control" id="destination" placeholder="Destination">
+           </div>
+           <div class="form-group">
+               <label for="start">First Train Time (HH:mm - military time)</label><br>
+               <input type="text" id="time" placeholder="   Time">
+               
+           </div>
+           <div class="form-group">
+               <label for="rate">Frequency (min)</label>
+               <input type="number" class="form-control" id="rate"  placeholder="Rate">
+             
+           </div>
+           <button type="submit" class="btn btn-primary" id='submitButton'>Submit</button>
+       </form>
+   </div>
+   <div id="displayTest"></div>
+<script>
+    var config = {
+    apiKey: "AIzaSyCmNLc7IyeK9wtadEPUgysS8imcmkNi4dg",
+    authDomain: "traintime-29551.firebaseapp.com",
+    databaseURL: "https://traintime-29551.firebaseio.com",
+    projectId: "traintime-29551",
+    storageBucket: "",
+    messagingSenderId: "355309117951"
+    };
+    firebase.initializeApp(config);
+    var database = firebase.database();
+let tName = '';
+let tDestination = '';
+let firstTrainTime = '';
+let tFrequency = '';
+
+$("#submitButton").on("click", function(event) {
+event.preventDefault();
+tName = $('#name').val().trim();
+tDestination = $('#destination').val().trim();
+firstTrainTime = $('#time').val();
+tFrequency = $('#rate').val().trim();
+//empTotalBilled = 
+let trainData = {
+    Name: tName,
+    Destination: tDestination,
+    FirstTrainTime: firstTrainTime,
+    Frequency: tFrequency,
+   // Total Billed:
+    }
+
+    console.log(trainData)
+var firebaseVar = firebase.database().ref('train_list');
+firebaseVar.push(trainData);
+console.log(empData);
+});
+firebase.database().ref('train_list').on('child_added', function(snapshot){
+    let childData = snapshot.val();
+    var today = Date.now();
+    let monthsWorked = timeDiff(today, childData.empStartDate);
+     console.log(monthsWorked);
+     console.log('today' + today);
+    //MONTH MATH CRazy dont work
+    var today = new Date();
+    var year = today.getFullYear();
+    var month = today.getMonth();
+    let todaysTotalMonths = (year*12) + month;
+    let empDateArray = childData.StartDate.split('-',);
+    let empTotalMonths = parseInt(empDateArray[0])*12 + parseInt(empDateArray[1] - 1);
+     
+    let finalMonths = todaysTotalMonths - empTotalMonths;
+    let childMonthlyRate = parseInt(childData.MonthlyRate);
+    let finalBilled = finalMonths * childMonthlyRate;
+     console.log('Craigs Crazy Calculations: ' + finalMonths);
+    console.log(': ' + finalMonths);
+    
+    ref.on('child_added', function(snapshot){
+        let start = snapshot.val().start;
+        console.log(moment().diff(moment(start), 'months'));
+    })
+    
+    $('#table-head').append(`
+    <tr class ="bro">
+                   <td scope="col">${childData.Name}</td>
+                   <td scope="col">${childData.Role}</td>
+                   <td scope="col">${childData.StartDate}</td>
+                   <td scope="col">${finalMonths}</td>
+                   <td scope="col">${childData.MonthlyRate}</td>
+                   <td scope="col">${finalBilled}</td>
+    </tr>
+    `)
+});
+ timeDiff = function(start,end) {
+   return moment(end).diff(start, 'months', true);
+ };
+
+var timepicker = new TimePicker('time', {
+  lang: 'en',
+  theme: 'dark'
+});
+timepicker.on('change', function(evt) {
+  
+  var value = (evt.hour || '00') + ':' + (evt.minute || '00');
+  evt.element.value = value;
+
+});
+</script>
+</body>
+</html>
